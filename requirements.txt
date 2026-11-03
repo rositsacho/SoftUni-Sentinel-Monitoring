@@ -1,0 +1,17 @@
+# Step 1 - parcels from KML
+# Minimum versions below all ship Python 3.13 wheels.
+geopandas>=1.0.1
+pyogrio>=0.10.0
+shapely>=2.1.0
+pyproj>=3.7.0
+pandas>=2.2.3
+
+# Later steps - notebook and plots
+numpy>=2.1.0
+matplotlib>=3.10.0
+jupyterlab>=4.0
+
+# Step 2 - Sentinel-2 L2A retrieval via the CDSE Sentinel Hub
+# Statistical API (OAuth2 client_credentials + requests).
+requests>=2.32.0
+python-dotenv>=1.0.0

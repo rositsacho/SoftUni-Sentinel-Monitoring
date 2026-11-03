@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+*.pyc
+*.egg-info/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Personal attachments
+ABV_Attachments(2)/
+ABV_Attachments(2).zip
+
+# Unreviewed file
+/o_eab9958e7ffe3sF04h2rTaI1w9
+
+# Parcel coordinates — review before publishing
+*.kml
+data/kml/
