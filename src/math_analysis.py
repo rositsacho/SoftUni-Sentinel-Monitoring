@@ -75,3 +75,48 @@ def extended_summary(df, value="ndvi_mean"):
             else np.nan
         ),
     }
+
+
+
+def linear_trend(times, values):
+    """Estimate a linear trend for unevenly spaced observations."""
+    dates = pd.to_datetime(times, utc=True)
+    y = np.asarray(values, dtype=float)
+
+    if len(dates) != len(y):
+        raise ValueError("Dates and values must have equal lengths")
+
+    mask = np.isfinite(y) & ~pd.isna(dates)
+    if mask.sum() < 3:
+        raise ValueError("At least 3 valid observations are required")
+
+    
+    x = (
+        (dates[mask] - dates[mask].min())
+        / pd.Timedelta(days=1)
+    ).to_numpy(dtype=float)
+
+    x = x - x.min()
+    y = y[mask]
+
+    if len(np.unique(x)) < 2:
+        raise ValueError("At least 2 distinct dates are required")
+
+    slope, intercept = np.polyfit(x, y, 1)
+    predicted = slope * x + intercept
+
+    ss_res = np.sum((y - predicted) ** 2)
+    ss_tot = np.sum((y - y.mean()) ** 2)
+
+    r_squared = (
+        1 - ss_res / ss_tot
+        if ss_tot > 1e-12
+        else np.nan
+    )
+
+    return {
+        "slope_per_day": float(slope),
+        "intercept": float(intercept),
+        "r_squared": float(r_squared),
+        "n_observations": int(len(y)),
+    }
