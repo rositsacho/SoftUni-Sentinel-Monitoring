@@ -2,14 +2,23 @@
 
 Retrospective crop verification using Sentinel-2 L2A imagery.
 
+
 ## Progress
 
-- [x] Step 1 - parcel boundaries from KML, areas in hectares
-      (synthetic test passed; real KML files processed successfully)
-- [ ] Step 2 - Sentinel-2 L2A retrieval
-- [ ] Step 3 - vegetation indices (NDVI, NDMI, NDYI)
-- [ ] Step 4 - phenology and time series
-- [ ] Step 5 - preliminary vs historical comparison
+- [x] Step 1 - Parcel boundaries from KML and area calculations
+- [x] Step 2 - Sentinel-2 L2A retrieval and parcel-level statistics using Sentinel Hub Statistical API
+- [x] Step 3 - Vegetation indices: NDVI and NDMI, with quality assessment
+- [x] Step 4 - Phenology and time-series analysis, including descriptive statistics, regression, anomaly detection, and temporal changes
+- [x] Step 5 - Retrospective analysis of historical Sentinel-2 observations for parcel P001 (2023–2024)
+
+### Scope and limitations
+
+The project demonstrates retrospective Sentinel-2 crop monitoring using Python and mathematical time-series analysis.
+
+The historical analysis includes 141 observation intervals, of which 70 are valid and 58 have complete coverage.
+
+NDYI is not included in the verified analysis. Crop identity cannot be conclusively established from NDVI and NDMI alone. A validated preliminary-versus-historical crop comparison has not yet been demonstrated.
+
 
 ## Run the self-test (Step 1)
 
