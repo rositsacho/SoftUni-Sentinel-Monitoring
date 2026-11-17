@@ -38,3 +38,22 @@ def test_invalid_date_order():
 
 def test_rmse_identical_predictions():
     assert np.isclose(rmse([1, 2], [1, 2]), 0.0)
+
+
+
+def test_extended_summary():
+    from src.math_analysis import extended_summary
+
+    df = pd.DataFrame({
+        "ndvi_mean": [0.2, 0.4, 0.6, np.nan]
+    })
+
+    result = extended_summary(df)
+
+    assert result["count"] == 3
+    assert result["missing"] == 1
+    assert np.isclose(result["mean"], 0.4)
+    assert np.isclose(result["median"], 0.4)
+    assert np.isclose(result["std"], 0.2)
+    assert np.isclose(result["q25"], 0.3)
+    assert np.isclose(result["q75"], 0.5)

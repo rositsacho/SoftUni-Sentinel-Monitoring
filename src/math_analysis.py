@@ -32,3 +32,46 @@ def rmse(observed,predicted):
     a=np.asarray(observed,dtype=float);b=np.asarray(predicted,dtype=float)
     mask=np.isfinite(a)&np.isfinite(b)
     return float(np.sqrt(np.mean((a[mask]-b[mask])**2))) if np.any(mask) else np.nan
+
+def extended_summary(df, value="ndvi_mean"):
+    """Calculate extended statistics for NDVI/NDMI observations."""
+    if value not in df.columns:
+        raise KeyError(f"Missing column: {value}")
+
+    values = pd.to_numeric(df[value], errors="coerce")
+    values = values.replace([np.inf, -np.inf], np.nan)
+    valid = values.dropna()
+
+    if valid.empty:
+        return {
+            "count": 0,
+            "missing": int(len(values)),
+            "mean": np.nan,
+            "median": np.nan,
+            "std": np.nan,
+            "min": np.nan,
+            "max": np.nan,
+            "q25": np.nan,
+            "q75": np.nan,
+            "cv_percent": np.nan,
+        }
+
+    mean = float(valid.mean())
+    std = float(valid.std(ddof=1)) if len(valid) > 1 else np.nan
+
+    return {
+        "count": int(len(valid)),
+        "missing": int(len(values) - len(valid)),
+        "mean": mean,
+        "median": float(valid.median()),
+        "std": std,
+        "min": float(valid.min()),
+        "max": float(valid.max()),
+        "q25": float(valid.quantile(0.25)),
+        "q75": float(valid.quantile(0.75)),
+        "cv_percent": (
+            float(100 * std / abs(mean))
+            if np.isfinite(std) and abs(mean) > 1e-12
+            else np.nan
+        ),
+    }
