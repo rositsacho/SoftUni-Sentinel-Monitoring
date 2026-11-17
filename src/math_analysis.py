@@ -183,3 +183,52 @@ def detect_sudden_drops(times, values, threshold=0.10):
         "n_drops": int(drops.sum()),
     }
 
+
+
+
+def period_change(times, values):
+    """Calculate vegetation index change over an observation period."""
+    dates = pd.to_datetime(times, utc=True)
+    y = np.asarray(values, dtype=float)
+
+    if len(dates) != len(y):
+        raise ValueError("Dates and values must have equal length")
+
+    if len(y) < 2:
+        raise ValueError("At least 2 observations are required")
+
+    if dates.isna().any():
+        raise ValueError("Dates must be valid")
+
+    if np.any(np.diff(dates.asi8) <= 0):
+        raise ValueError("Dates must be strictly increasing")
+
+    valid = np.isfinite(y)
+
+    if valid.sum() < 2:
+        raise ValueError("At least 2 valid observations are required")
+
+    first = np.flatnonzero(valid)[0]
+    last = np.flatnonzero(valid)[-1]
+
+    start_value = float(y[first])
+    end_value = float(y[last])
+    absolute_change = end_value - start_value
+
+    relative_change = (
+        100 * absolute_change / abs(start_value)
+        if abs(start_value) > 1e-12
+        else np.nan
+    )
+
+    duration_days = (
+        dates[last] - dates[first]
+    ).total_seconds() / 86400
+
+    return {
+        "start_value": start_value,
+        "end_value": end_value,
+        "absolute_change": float(absolute_change),
+        "relative_change_percent": float(relative_change),
+        "duration_days": float(duration_days),
+    }

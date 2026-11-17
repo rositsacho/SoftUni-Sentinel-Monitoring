@@ -189,3 +189,69 @@ def test_sudden_drops_invalid_dates():
 
     with pytest.raises(ValueError):
         detect_sudden_drops(dates, ndvi)
+
+
+
+def test_period_change_decrease():
+    from src.math_analysis import period_change
+
+    dates = ["2024-06-01", "2024-06-06", "2024-06-11"]
+    ndvi = [0.60, 0.55, 0.48]
+
+    result = period_change(dates, ndvi)
+
+    assert np.isclose(result["absolute_change"], -0.12)
+    assert np.isclose(result["relative_change_percent"], -20.0)
+    assert np.isclose(result["duration_days"], 10.0)
+
+
+def test_period_change_increase():
+    from src.math_analysis import period_change
+
+    dates = ["2024-06-01", "2024-06-11"]
+    ndvi = [0.40, 0.50]
+
+    result = period_change(dates, ndvi)
+
+    assert np.isclose(result["absolute_change"], 0.10)
+    assert np.isclose(result["relative_change_percent"], 25.0)
+
+
+def test_period_change_missing_values():
+    from src.math_analysis import period_change
+
+    dates = [
+        "2024-06-01",
+        "2024-06-06",
+        "2024-06-11",
+        "2024-06-16",
+    ]
+    ndvi = [np.nan, 0.60, 0.55, 0.48]
+
+    result = period_change(dates, ndvi)
+
+    assert np.isclose(result["start_value"], 0.60)
+    assert np.isclose(result["end_value"], 0.48)
+    assert np.isclose(result["duration_days"], 10.0)
+
+
+def test_period_change_zero_start():
+    from src.math_analysis import period_change
+
+    dates = ["2024-06-01", "2024-06-06"]
+    ndvi = [0.0, 0.20]
+
+    result = period_change(dates, ndvi)
+
+    assert np.isclose(result["absolute_change"], 0.20)
+    assert np.isnan(result["relative_change_percent"])
+
+
+def test_period_change_insufficient_data():
+    from src.math_analysis import period_change
+
+    dates = ["2024-06-01", "2024-06-06"]
+    ndvi = [0.50, np.nan]
+
+    with pytest.raises(ValueError):
+        period_change(dates, ndvi)
