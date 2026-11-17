@@ -142,3 +142,50 @@ def test_detect_anomalies_insufficient_data():
     with pytest.raises(ValueError):
         detect_anomalies([0.50, np.nan, 0.40])
 
+
+
+def test_sudden_drops_detected():
+    from src.math_analysis import detect_sudden_drops
+
+    dates = ["2024-06-01", "2024-06-06", "2024-06-11"]
+    ndvi = [0.65, 0.48, 0.46]
+
+    result = detect_sudden_drops(dates, ndvi)
+
+    assert result["n_drops"] == 1
+    assert result["drops"].tolist() == [True, False]
+    assert np.isclose(result["changes"][0], -0.17)
+
+
+def test_sudden_drops_no_drop():
+    from src.math_analysis import detect_sudden_drops
+
+    dates = ["2024-06-01", "2024-06-06", "2024-06-11"]
+    ndvi = [0.40, 0.50, 0.55]
+
+    result = detect_sudden_drops(dates, ndvi)
+
+    assert result["n_drops"] == 0
+    assert not result["drops"].any()
+
+
+def test_sudden_drops_missing_values():
+    from src.math_analysis import detect_sudden_drops
+
+    dates = ["2024-06-01", "2024-06-06", "2024-06-11"]
+    ndvi = [0.65, np.nan, 0.40]
+
+    result = detect_sudden_drops(dates, ndvi)
+
+    assert result["n_drops"] == 0
+    assert np.isnan(result["changes"]).all()
+
+
+def test_sudden_drops_invalid_dates():
+    from src.math_analysis import detect_sudden_drops
+
+    dates = ["2024-06-06", "2024-06-01"]
+    ndvi = [0.65, 0.40]
+
+    with pytest.raises(ValueError):
+        detect_sudden_drops(dates, ndvi)

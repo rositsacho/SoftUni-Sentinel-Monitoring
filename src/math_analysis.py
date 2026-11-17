@@ -151,3 +151,35 @@ def detect_anomalies(values, threshold=2.0):
         "anomalies": anomalies,
         "n_anomalies": int(anomalies.sum()),
     }
+
+
+
+def detect_sudden_drops(times, values, threshold=0.10):
+    """Detect sudden decreases between consecutive observations."""
+    dates = pd.to_datetime(times, utc=True)
+    y = np.asarray(values, dtype=float)
+
+    if len(dates) != len(y):
+        raise ValueError("Dates and values must have equal length")
+
+    if not np.isfinite(threshold) or threshold <= 0:
+        raise ValueError("Threshold must be positive and finite")
+
+    if len(y) < 2:
+        raise ValueError("At least 2 observations are required")
+
+    if np.any(np.diff(dates.asi8) <= 0):
+        raise ValueError("Dates must be strictly increasing")
+
+    changes = np.diff(y)
+    valid = np.isfinite(y[:-1]) & np.isfinite(y[1:])
+    changes[~valid] = np.nan
+
+    drops = np.isfinite(changes) & (changes <= -threshold)
+
+    return {
+        "changes": changes,
+        "drops": drops,
+        "n_drops": int(drops.sum()),
+    }
+
