@@ -101,3 +101,44 @@ def test_linear_trend_insufficient_data():
             ["2024-06-01", "2024-06-03"],
             [0.30, 0.34],
         )
+
+
+
+def test_detect_anomalies_outlier():
+    from src.math_analysis import detect_anomalies
+
+    values = [0.50] * 19 + [0.10]
+    result = detect_anomalies(values)
+
+    assert result["n_anomalies"] == 1
+    assert result["anomalies"][-1]
+    assert result["z_scores"][-1] < -2.0
+
+
+def test_detect_anomalies_constant_values():
+    from src.math_analysis import detect_anomalies
+
+    result = detect_anomalies([0.50, 0.50, 0.50, 0.50])
+
+    assert result["n_anomalies"] == 0
+    assert not result["anomalies"].any()
+
+
+def test_detect_anomalies_missing_values():
+    from src.math_analysis import detect_anomalies
+
+    result = detect_anomalies(
+        [0.50] * 19 + [np.nan, 0.10]
+    )
+
+    assert result["n_anomalies"] == 1
+    assert np.isnan(result["z_scores"][19])
+    assert not result["anomalies"][19]
+
+
+def test_detect_anomalies_insufficient_data():
+    from src.math_analysis import detect_anomalies
+
+    with pytest.raises(ValueError):
+        detect_anomalies([0.50, np.nan, 0.40])
+

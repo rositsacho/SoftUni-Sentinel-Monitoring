@@ -120,3 +120,34 @@ def linear_trend(times, values):
         "r_squared": float(r_squared),
         "n_observations": int(len(y)),
     }
+
+
+
+def detect_anomalies(values, threshold=2.0):
+    """Detect statistical anomalies using standard z-scores."""
+    y = np.asarray(values, dtype=float)
+
+    if not np.isfinite(threshold) or threshold <= 0:
+        raise ValueError("Threshold must be positive and finite")
+
+    valid = np.isfinite(y)
+    if valid.sum() < 3:
+        raise ValueError("At least 3 valid observations are required")
+
+    mean = np.mean(y[valid])
+    std = np.std(y[valid], ddof=1)
+
+    z_scores = np.full(y.shape, np.nan)
+    anomalies = np.zeros(y.shape, dtype=bool)
+
+    if std > 1e-12:
+        z_scores[valid] = (y[valid] - mean) / std
+        anomalies[valid] = np.abs(z_scores[valid]) > threshold
+
+    return {
+        "mean": float(mean),
+        "std": float(std),
+        "z_scores": z_scores,
+        "anomalies": anomalies,
+        "n_anomalies": int(anomalies.sum()),
+    }
